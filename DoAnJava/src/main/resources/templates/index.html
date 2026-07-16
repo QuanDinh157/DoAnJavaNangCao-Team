@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tea & Cake - Premium Store</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="main-header">
+  <div class="header-container">
+    <div class="header-left">
+      <a class="header-logo" href="/">TEA & CAKE</a>
+    </div>
+
+    <div class="header-search-box">
+      <form action="/search" method="GET">
+        <input class="search-control" type="search" name="keyword" placeholder="Bạn muốn mua gì...">
+        <button class="btn-search" type="submit">Tìm</button>
+      </form>
+    </div>
+
+    <div class="header-right-actions d-flex align-items-center gap-3">
+      <a href="/cart" class="cart-link-premium">
+        Giỏ hàng <span class="cart-count">(0)</span>
+      </a>
+
+      <div class="auth-buttons">
+        <div sec:authorize="isAnonymous()" class="d-flex align-items-center">
+          <a href="/login" class="auth-link">Đăng nhập</a>
+          <span class="auth-divider">/</span>
+          <a href="/register" class="auth-link">Đăng ký</a>
+        </div>
+
+        <div sec:authorize="isAuthenticated()" class="custom-user-dropdown">
+          <button class="dropdown-trigger-btn" type="button">
+            <i class="fa-regular fa-user-circle"></i>
+            <span>Xin chào, <span sec:authentication="name">[Username]</span>!</span>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+          </button>
+
+          <div class="dropdown-content-menu">
+            <a sec:authorize="hasRole('ROLE_ADMIN')" class="dropdown-custom-item text-danger fw-bold" href="/admin/products">
+              <i class="fa-solid fa-user-shield"></i> Quản lý hệ thống
+            </a>
+            <div sec:authorize="hasRole('ROLE_ADMIN')" class="dropdown-custom-divider"></div>
+
+            <a class="dropdown-custom-item" href="/profile">
+              <i class="fa-regular fa-id-card"></i> Cá nhân
+            </a>
+            <a class="dropdown-custom-item" href="/orders/history">
+              <i class="fa-solid fa-clock-rotate-left"></i> Đơn hàng
+            </a>
+            <div class="dropdown-custom-divider"></div>
+            <form th:action="@{/logout}" method="POST" style="margin: 0; width: 100%;">
+              <button type="submit" class="dropdown-custom-item logout-action-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="header-nav">
+    <div class="container">
+      <ul class="nav-menu-list">
+        <li><a href="/" class="menu-item active">TRANG CHỦ</a></li>
+        <li><a href="/thuc-uong" class="menu-item">THỨC UỐNG</a></li>
+        <li><a href="/banh-ngot" class="menu-item">BÁNH NGỌT</a></li>
+        <li><a href="/ve-chung-toi" class="menu-item">VỀ CHÚNG TÔI</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<div class="hero-section">
+  <div class="container">
+    <h1>Đậm Đà Vị Trà - Thơm Ngon Vị Bánh</h1>
+    <p>Trải nghiệm hương vị truyền thống tinh tế trong từng sản phẩm của chúng tôi.</p>
+    <a href="#menu" class="btn-pl">XEM MENU</a>
+  </div>
+</div>
+
+<!-- SECTION SẢN PHẨM NỔI BẬT -->
+<div id="menu" class="container mb-5">
+  <h3 class="section-title">SẢN PHẨM NỔI BẬT</h3>
+
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    <!-- Dùng hotProducts đã lọc từ Controller -->
+    <div class="col" th:each="product : ${hotProducts}">
+      <div class="product-card">
+        <div>
+          <img th:src="${product.imageUrl}" th:alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
+          <div class="product-category" th:text="${product.category != null ? product.category.name : 'Chưa có loại'}">Thể loại</div>
+          <div class="product-name" th:text="${product.name}">Tên sản phẩm</div>
+        </div>
+        <div>
+          <div class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+          <button class="btn-buy">Chọn mua</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p style="margin: 0; font-size: 0.85rem; opacity: 0.8;">&copy; 2026 TEA & CAKE - Hệ Thống Trà & Bánh Tối Giản</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
