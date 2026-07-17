@@ -8,6 +8,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
+<script>
+  function addToCart(productId) {
+    fetch('/cart/add/' + productId, {
+      method: 'POST'
+    })
+            .then(response => response.json())
+            .then(count => {
+              document.getElementById('cart-count').innerText = '(' + count + ')';
+            })
+            .catch(error => {
+              console.error('Lỗi:', error);
+
+            });
+  }
+</script>
 <body>
 
 <header class="main-header">
@@ -25,7 +40,8 @@
 
     <div class="header-right-actions d-flex align-items-center gap-3">
       <a href="/cart" class="cart-link-premium">
-        Giỏ hàng <span class="cart-count">(0)</span>
+        Giỏ hàng <span class="cart-count" id="cart-count"
+                       th:text="'(' + ${cartCount != null ? cartCount : 0} + ')'">(0)</span>
       </a>
 
       <div class="auth-buttons">
@@ -69,9 +85,9 @@
   <nav class="header-nav">
     <div class="container">
       <ul class="nav-menu-list">
-        <li><a href="/" class="menu-item active">TRANG CHỦ</a></li>
-        <li><a href="/thuc-uong" class="menu-item">THỨC UỐNG</a></li>
-        <li><a href="/banh-ngot" class="menu-item">BÁNH NGỌT</a></li>
+        <li><a href="/" th:classappend="${activePage == null or activePage == ''} ? 'active' : ''" class="menu-item">TRANG CHỦ</a></li>
+        <li><a href="/thuc-uong" th:classappend="${activePage == 'thuc-uong'} ? 'active' : ''" class="menu-item">THỨC UỐNG</a></li>
+        <li><a href="/banh-ngot" th:classappend="${activePage == 'banh-ngot'} ? 'active' : ''" class="menu-item">BÁNH NGỌT</a></li>
         <li><a href="/ve-chung-toi" class="menu-item">VỀ CHÚNG TÔI</a></li>
       </ul>
     </div>
@@ -107,19 +123,32 @@
 </div>
 
 <div id="menu" class="container mb-5">
-  <h3 class="section-title">SẢN PHẨM NỔI BẬT</h3>
+  <h3 class="section-title">
+    <span th:if="${activePage == 'thuc-uong'}">DANH MỤC THỨC UỐNG</span>
+    <span th:if="${activePage == 'banh-ngot'}">DANH MỤC BÁNH NGỌT</span>
+    <span th:if="${activePage == null or activePage == ''}">SẢN PHẨM NỔI BẬT</span>
+  </h3>
 
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-    <div class="col" th:each="product : ${hotProducts}">
+    <div class="col" th:each="product : ${products}">
       <div class="product-card">
         <div>
           <img th:src="${product.imageUrl}" th:alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
           <div class="product-category" th:text="${product.category != null ? product.category.name : 'Chưa có loại'}">Thể loại</div>
           <div class="product-name" th:text="${product.name}">Tên sản phẩm</div>
         </div>
+        <!-- mua sản phẩm -->
         <div>
           <div class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
-          <button class="btn-buy">Chọn mua</button>
+
+          <!-- Bọc nút vào form để gửi yêu cầu đến server -->
+          <button type="button"
+                  class="btn-buy"
+                  th:data-id="${product.id}"
+                  onclick="addToCart(this.getAttribute('data-id'))"
+                  style="border: none; width: 100%; cursor: pointer;">
+            Chọn mua
+          </button>
         </div>
       </div>
     </div>

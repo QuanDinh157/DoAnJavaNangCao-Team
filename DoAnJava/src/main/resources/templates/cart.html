@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng của bạn | TEA & CAKE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Bạn nên giữ nguyên link này để load file CSS chính của bạn -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .cart-hero { padding: 40px 0; background: #f8f9fa; margin-bottom: 30px; }
+        .cart-table-wrapper { background: #fff; border: 1px solid #edf2f7; border-radius: 8px; padding: 20px; }
+        .btn-checkout { background: #000; color: #fff; padding: 12px 30px; border-radius: 0; font-weight: 600; }
+        .btn-checkout:hover { background: #333; color: #fff; }
+
+
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <!-- Copy nguyên bản Header từ index.html -->
+    <div class="header-container">
+        <div class="header-left">
+            <a class="header-logo" href="/">TEA & CAKE</a>
+        </div>
+
+        <div class="header-search-box">
+            <form action="/search" method="GET">
+                <input class="search-control" type="search" name="keyword" placeholder="Bạn muốn mua gì...">
+                <button class="btn-search" type="submit">Tìm</button>
+            </form>
+        </div>
+
+        <div class="header-right-actions d-flex align-items-center gap-3">
+            <a href="/cart" class="cart-link-premium">
+                Giỏ hàng <span class="cart-count" th:text="'(' + ${cartCount != null ? cartCount : 0} + ')'">(0)</span>
+            </a>
+
+            <div class="auth-buttons">
+                <div sec:authorize="isAnonymous()" class="d-flex align-items-center">
+                    <a href="/login" class="auth-link">Đăng nhập</a>
+                    <span class="auth-divider" style="margin: 0 8px; color: #cbd5e0;">/</span>
+                    <a href="/register" class="auth-link">Đăng ký</a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" class="custom-user-dropdown">
+                    <button class="dropdown-trigger-btn" type="button">
+                        <i class="fa-regular fa-user-circle"></i>
+                        <span>Xin chào, <span sec:authentication="name"></span>!</span>
+                        <i class="fa-solid fa-chevron-down arrow-icon"></i>
+                    </button>
+
+                    <div class="dropdown-content-menu">
+                        <a sec:authorize="hasRole('ROLE_ADMIN')" class="dropdown-custom-item text-danger fw-bold" href="/admin/products">
+                            <i class="fa-solid fa-user-shield"></i> Quản lý hệ thống
+                        </a>
+                        <a class="dropdown-custom-item" href="/profile"><i class="fa-regular fa-id-card"></i> Cá nhân</a>
+                        <a class="dropdown-custom-item" href="/orders/history"><i class="fa-solid fa-clock-rotate-left"></i> Đơn hàng</a>
+                        <form th:action="@{/logout}" method="POST" style="margin: 0; width: 100%;">
+                            <button type="submit" class="dropdown-custom-item logout-action-btn">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</header>
+
+<div class="cart-hero text-center">
+    <h2>GIỎ HÀNG CỦA BẠN</h2>
+    <p>Kiểm tra lại sản phẩm trước khi thanh toán</p>
+</div>
+
+<div class="container mb-5">
+    <!-- Trường hợp giỏ hàng trống -->
+    <div th:if="${cartItems == null or cartItems.isEmpty()}" class="text-center py-5">
+        <i class="fa-solid fa-cart-shopping fa-3x mb-3" style="color: #cbd5e0;"></i>
+        <h4>Giỏ hàng của bạn đang trống</h4>
+        <a href="/" class="btn btn-outline-dark mt-3">TIẾP TỤC MUA SẮM</a>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="cart-table-wrapper" th:if="${cartItems != null and not cartItems.isEmpty()}">
+        <table class="table align-middle">
+            <thead>
+            <tr class="text-uppercase" style="font-size: 0.8rem; color: #718096;">
+                <th>Sản phẩm</th>
+                <th class="text-center">Đơn giá</th>
+                <th class="text-center">Số lượng</th>
+                <th class="text-center">Thành tiền</th>
+                <th class="text-center">Xóa</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${cartItems}">
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img th:src="${entry.value.imageUrl}" class="rounded" style="width: 70px; height: 70px; object-fit: cover;">
+                        <div class="ms-3">
+                            <div class="fw-bold" th:text="${entry.value.name}">Tên sản phẩm</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-center" th:text="${#numbers.formatDecimal(entry.value.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td class="text-center">
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                        <!-- Nút Trừ -->
+                        <form th:action="@{'/cart/update/' + ${entry.key} + '/decrease'}" method="POST" style="margin:0;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" style="width: 30px;">-</button>
+                        </form>
+
+                        <!-- Hiển thị số lượng -->
+                        <span class="fw-bold" th:text="${entry.value.quantity}" style="width: 30px;">1</span>
+
+                        <!-- Nút Cộng -->
+                        <form th:action="@{'/cart/update/' + ${entry.key} + '/increase'}" method="POST" style="margin:0;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" style="width: 30px;">+</button>
+                        </form>
+                    </div>
+                </td>
+                <td class="text-center fw-bold text-danger" th:text="${#numbers.formatDecimal(entry.value.price * entry.value.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                <td class="text-center">
+                    <form th:action="@{'/cart/remove/' + ${entry.key}}" method="POST">
+                        <button type="submit" class="btn btn-link text-danger"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center pt-3">
+            <a href="/" class="text-dark"><i class="fa-solid fa-arrow-left"></i> Tiếp tục chọn món</a>
+            <div class="text-end">
+                <h5 class="mb-3">
+                    TỔNG CỘNG:
+                    <span class="text-danger ms-2" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                </h5>
+                <a href="/checkout" class="btn btn-checkout">THANH TOÁN NGAY</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer (Giữ nguyên như trang chủ) -->
+<footer class="footer-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <h5>ĐỊA CHỈ</h5>
+                <p style="font-size: 0.9rem; line-height: 1.6;">
+                    <strong>Trụ sở chính:</strong> Công ty Quân & Thạch <br>
+                    <strong>Địa chỉ:</strong> Số 17 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM <br>
+                    <strong>Hotline:</strong> 0993365781 <br>
+                    <strong>Email:</strong> sales@teacake.com
+                </p>
+            </div>
+            <div class="col-md-2 mb-3">
+                <h5>CÔNG TY</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="#">Tin khuyến mãi</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h5>HỖ TRỢ</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Câu hỏi thường gặp (FAQ)</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Chính sách đặt hàng</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3 text-md-end">
+                <img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png" alt="Bộ Công Thương" style="width: 150px;">
+            </div>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.2);">
+        <div class="d-flex justify-content-between align-items-center">
+            <p style="margin: 0; font-size: 0.85rem;">&copy; 2026 TEA & CAKE - Hệ Thống Trà & Bánh Tối Giản</p>
+            <div class="social-icons">
+                <i class="fa-brands fa-instagram mx-2"></i>
+                <i class="fa-brands fa-facebook mx-2"></i>
+                <i class="fa-brands fa-youtube mx-2"></i>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
