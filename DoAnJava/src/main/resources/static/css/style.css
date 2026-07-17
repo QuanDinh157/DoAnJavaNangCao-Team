@@ -37,10 +37,6 @@ body {
     gap: 20px;
 }
 
-.header-left {
-    flex-shrink: 0;
-}
-
 .header-logo {
     color: var(--pl-orange) !important;
     font-weight: 800;
@@ -133,11 +129,6 @@ body {
     font-weight: 600;
 }
 
-.auth-divider {
-    color: #CBD5E1;
-    user-select: none;
-}
-
 .header-nav {
     background-color: #FFFFFF;
     padding: 6px 0;
@@ -171,6 +162,7 @@ body {
     text-align: center;
     border-bottom: 1px solid var(--border-color);
 }
+
 #menu {
     flex: 1 0 auto;
 }
@@ -272,26 +264,7 @@ body {
     color: #FFFFFF;
 }
 
-footer {
-    background-color: #1A1A1A;
-    color: #FFFFFF;
-    text-align: center;
-    padding: 25px 0;
-    margin-top: 80px;
-    border-top: 3px solid var(--pl-orange);
-}
-
-/* ==========================================================================
-   BỔ SUNG: CUSTOM DROPDOWN TÀI KHOẢN (Đồng bộ thiết kế Tea & Cake)
-   ========================================================================== */
-
-/* Khối bao ngoài của dropdown */
-.custom-user-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Nút hiển thị thông tin tài khoản */
+.custom-user-dropdown { position: relative; display: inline-block; }
 .dropdown-trigger-btn {
     background-color: #FFFFFF;
     border: 1px solid #E2E8F0;
@@ -304,163 +277,82 @@ footer {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s ease-in-out;
 }
-
-/* Icon user mặc định */
-.dropdown-trigger-btn i {
-    font-size: 1rem;
-    color: var(--pl-orange);
-}
-
-/* Biến màu cam cho tên Username */
-.dropdown-trigger-btn span span {
-    color: var(--pl-orange) !important;
-}
-
-/* Icon mũi tên */
-.dropdown-trigger-btn .arrow-icon {
-    font-size: 8px;
-    color: #A0AEC0;
-    transition: transform 0.2s ease;
-}
-
-/* Hiệu ứng hover nút tài khoản */
-.dropdown-trigger-btn:hover {
-    border-color: var(--pl-orange);
-    background-color: var(--pl-beige);
-}
-
-/* Menu con thả xuống */
+.dropdown-trigger-btn i { color: var(--pl-orange); }
 .dropdown-content-menu {
     display: none;
     position: absolute;
     right: 0;
     top: 100%;
-    margin-top: 0;
     background-color: #FFFFFF;
     min-width: 180px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border-radius: 8px;
-    border: 1px solid var(--border-color);
     z-index: 1100;
-    overflow: hidden;
     padding: 6px 0;
-    transform-origin: top right;
-    animation: dropdownFadeIn 0.15s ease-out;
 }
-
-.dropdown-content-menu::before {
-    content: "";
-    position: absolute;
-    top: -15px;
-    left: 0;
-    width: 100%;
-    height: 15px;
-    background: transparent;
-}
-
-/* Khi hover vào khối thì hiện menu con */
-.custom-user-dropdown:hover .dropdown-content-menu {
-    display: block;
-}
-
-/* Xoay nhẹ icon mũi tên khi hover */
-.custom-user-dropdown:hover .arrow-icon {
-    transform: rotate(180deg);
-}
-
-/* Từng đường dẫn lựa chọn trong menu */
+.custom-user-dropdown:hover .dropdown-content-menu { display: block; }
 .dropdown-custom-item {
     display: flex;
-    align-items: center;
-    gap: 10px;
     padding: 10px 16px;
-    text-decoration: none !important;
     color: #4A5568;
     font-size: 0.85rem;
     font-weight: 600;
-    background: none;
-    border: none;
+    text-decoration: none;
+}
+.dropdown-custom-item:hover { background-color: #FFF5F2; color: var(--pl-orange); }
+
+.banner-wrapper { max-width: 1320px; margin: 0 auto; }
+.banner-content { width: 100%; height: 350px; overflow: hidden; background-color: #ddd; }
+.banner-content img { width: 100%; height: 100%; object-fit: cover; }
+
+.footer-section {
+    background-color: #1A1A1A !important;
+    color: #ffffff !important;
+    padding: 40px 0;
+    margin-top: 80px;
+    border-top: 3px solid var(--pl-orange);
+}
+.footer-section h5 {
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+.footer-section a {
+    color: #e0e0e0 !important;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+.footer-section a:hover {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+}
+.social-icons i {
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.logout-action-btn {
+    background: none !important;
+    border: none !important;
+    padding: 10px 16px !important;
     width: 100%;
     text-align: left;
     cursor: pointer;
-    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #E53E3E !important;
+    font-weight: 600;
+    font-size: 0.85rem;
 }
-
-.dropdown-custom-item i {
-    width: 16px;
-    text-align: center;
-    color: #718096;
-    font-size: 0.9rem;
-}
-
-/* Hover các item trong menu con */
-.dropdown-custom-item:hover {
-    background-color: #FFF5F2; /* Màu cam nhạt sang trọng */
-    color: var(--pl-orange);
-}
-
-.dropdown-custom-item:hover i {
-    color: var(--pl-orange);
-}
-
-/* Đường phân tách mỏng */
-.dropdown-custom-divider {
-    height: 1px;
-    background-color: var(--border-color);
-    margin: 6px 0;
-}
-
-/* Menu đăng xuất (màu đỏ cảnh báo nhẹ) */
-.logout-action-btn {
-    color: #E53E3E;
-}
-
-.logout-action-btn i {
-    color: #E53E3E;
-}
-
 .logout-action-btn:hover {
-    background-color: #FFF5F5;
-    color: #C53030;
+    background-color: #FFF5F5 !important;
+    color: #C53030 !important;
 }
-
-.logout-action-btn:hover i {
-    color: #C53030;
-}
-
-/* Hiệu ứng chuyển động mượt mà khi hiện menu */
-@keyframes dropdownFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-/* Container bao bọc banner để giữ bề ngang bằng với nội dung khác */
-.banner-wrapper {
-    max-width: 1320px;
-    margin: 0 auto; /* Xóa khoảng cách 20px ở trên và dưới */
-    padding: 0;     /* Loại bỏ padding trắng hai bên */
-}
-
-.banner-content {
-    position: relative;
-    width: 100%;
-    height: 350px;
-    border-radius: 0; /* Chuyển thành vuông (0px thay vì 12px) */
-    overflow: hidden;
-    background-color: #ddd;
-}
-
-/* Ảnh trong banner */
-.banner-content img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Giữ tỷ lệ ảnh không bị méo */
+.logout-action-btn i {
+    color: #E53E3E !important;
 }
