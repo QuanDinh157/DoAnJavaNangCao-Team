@@ -86,12 +86,30 @@
   </div>
 </div>
 
-<!-- SECTION SẢN PHẨM NỔI BẬT -->
+<div th:if="${not #lists.isEmpty(banners)}" class="banner-wrapper">
+  <div class="banner-content" style="box-shadow: none;">
+    <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div th:each="banner, iter : ${banners}"
+             th:classappend="${iter.first} ? 'active'" class="carousel-item">
+          <img th:src="${banner.imageUrl}" class="d-block w-100" th:alt="${banner.title}"
+               style="height: 350px; object-fit: cover;">
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="menu" class="container mb-5">
   <h3 class="section-title">SẢN PHẨM NỔI BẬT</h3>
 
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-    <!-- Dùng hotProducts đã lọc từ Controller -->
     <div class="col" th:each="product : ${hotProducts}">
       <div class="product-card">
         <div>

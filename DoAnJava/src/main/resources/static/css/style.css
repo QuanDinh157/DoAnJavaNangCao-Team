@@ -441,3 +441,26 @@ footer {
         transform: scale(1) translateY(0);
     }
 }
+
+/* Container bao bọc banner để giữ bề ngang bằng với nội dung khác */
+.banner-wrapper {
+    max-width: 1320px;
+    margin: 0 auto; /* Xóa khoảng cách 20px ở trên và dưới */
+    padding: 0;     /* Loại bỏ padding trắng hai bên */
+}
+
+.banner-content {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    border-radius: 0; /* Chuyển thành vuông (0px thay vì 12px) */
+    overflow: hidden;
+    background-color: #ddd;
+}
+
+/* Ảnh trong banner */
+.banner-content img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Giữ tỷ lệ ảnh không bị méo */
+}

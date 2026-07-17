@@ -1,6 +1,7 @@
 package com.example.DoAnJava.controller;
 
 import com.example.DoAnJava.entity.Product;
+import com.example.DoAnJava.repository.BannerRepository;
 import com.example.DoAnJava.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,24 +13,24 @@ import java.util.stream.Collectors;
 public class HomeController {
 
     private final ProductService productService;
+    private final BannerRepository bannerRepository;
 
-    public HomeController(ProductService productService) {
+    public HomeController(ProductService productService, BannerRepository bannerRepository) {
         this.productService = productService;
+        this.bannerRepository = bannerRepository;
     }
 
     @GetMapping("/")
     public String index(Model model) {
         List<Product> allProducts = productService.getAllProducts();
-
-        // 1. Danh sách hot để hiển thị ở mục "SẢN PHẨM NỔI BẬT"
         List<Product> hotProducts = allProducts.stream()
                 .filter(p -> p.getIsHot() != null && p.getIsHot())
                 .collect(Collectors.toList());
 
-        // 2. Truyền hotProducts vào model
+        model.addAttribute("banners", bannerRepository.findAll());
         model.addAttribute("hotProducts", hotProducts);
-        // Nếu cần hiển thị toàn bộ sp ở phần khác thì để "products", còn không thì thôi
         model.addAttribute("products", allProducts);
+        model.addAttribute("activePage", "all");
 
         return "index";
     }
@@ -40,6 +41,7 @@ public class HomeController {
                 .filter(p -> p.getCategory() != null && "Thức uống".equalsIgnoreCase(p.getCategory().getName()))
                 .collect(Collectors.toList());
         model.addAttribute("products", drinks);
+        model.addAttribute("activePage", "thuc-uong");
         return "index";
     }
 
@@ -49,6 +51,7 @@ public class HomeController {
                 .filter(p -> p.getCategory() != null && "Bánh ngọt".equalsIgnoreCase(p.getCategory().getName()))
                 .collect(Collectors.toList());
         model.addAttribute("products", cakes);
+        model.addAttribute("activePage", "banh-ngot");
         return "index";
     }
 }

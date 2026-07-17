@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:replace="~{admin/layout :: layout(~{::div.content-body})}">
+    <div class="content-body">
+        <h2>Quản lý Banner</h2>
+        <div class="card shadow mt-4">
+            <div class="card-header"><h5>Thêm Banner mới</h5></div>
+            <div class="card-body">
+                <form th:action="@{/admin/banners/save}" method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-5 mb-2"><input type="text" name="title" class="form-control" placeholder="Tiêu đề" required></div>
+                        <div class="col-md-5 mb-2"><input type="file" name="imageFile" class="form-control" accept="image/*" required></div>
+                        <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Lưu</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow mt-4">
+            <div class="card-body">
+                <table class="table align-middle">
+                    <thead><tr><th>Ảnh</th><th>Tiêu đề</th><th>Hành động</th></tr></thead>
+                    <tbody>
+                    <tr th:each="banner : ${banners}">
+                        <td><img th:src="${banner.imageUrl}" style="width: 80px; height: 50px; object-fit: cover;"></td>
+                        <td th:text="${banner.title}"></td>
+                        <td><a th:href="@{/admin/banners/delete/{id}(id=${banner.id})}" class="btn btn-danger btn-sm">Xóa</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -2,17 +2,13 @@ package com.example.DoAnJava.controller;
 
 import com.example.DoAnJava.entity.Product;
 import com.example.DoAnJava.service.CategoryService;
+import com.example.DoAnJava.service.CloudinaryService;
 import com.example.DoAnJava.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-
 
 @Controller
 @RequestMapping("/admin/products")
@@ -20,16 +16,17 @@ public class ProductController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final CloudinaryService cloudinaryService;
 
-    public ProductController(ProductService productService, CategoryService categoryService) {
+    public ProductController(ProductService productService, CategoryService categoryService, CloudinaryService cloudinaryService) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping
     public String listProducts(Model model) {
         model.addAttribute("products", productService.getAllProducts());
-        // Đã sửa thành "admin/product-list" để khớp với thư mục admin/
         return "admin/product-list";
     }
 
@@ -37,7 +34,6 @@ public class ProductController {
     public String showAddForm(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categoryService.getAllCategories());
-        // Đã sửa thành "admin/product-form"
         return "admin/product-form";
     }
 
@@ -46,32 +42,35 @@ public class ProductController {
                               @RequestParam(value = "categoryId", required = false) String categoryId,
                               @RequestParam("imageFile") MultipartFile imageFile) {
 
-        // 1. Xử lý ID trước tiên (đưa ra ngoài try-catch)
+        // 1. Xử lý ID
         if (product.getId() != null && product.getId().trim().isEmpty()) {
             product.setId(null);
         }
 
-        // 2. Xử lý Category
+        // 2. Logic giữ ảnh cũ: Nếu là Edit (đã có ID) thì lấy lại URL cũ từ DB
+        if (product.getId() != null) {
+            Product existingProduct = productService.getProductById(product.getId());
+            if (existingProduct != null) {
+                product.setImageUrl(existingProduct.getImageUrl());
+            }
+        }
+
+        // 3. Xử lý Category
         if (categoryId != null && !categoryId.isEmpty()) {
             product.setCategory(categoryService.getCategoryById(categoryId));
         }
 
-        // 3. Xử lý Ảnh
+        // 4. Xử lý Ảnh với Cloudinary (Chỉ ghi đè nếu có chọn file mới)
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
-                String uploadDir = "src/main/resources/static/images/";
-                Path uploadPath = Paths.get(uploadDir);
-                if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
-                String uniqueFileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
-                Path filePath = uploadPath.resolve(uniqueFileName);
-                Files.copy(imageFile.getInputStream(), filePath);
-                product.setImageUrl(uniqueFileName);
+                String imageUrl = cloudinaryService.uploadImage(imageFile);
+                product.setImageUrl(imageUrl);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // 4. Lưu
+        // 5. Lưu sản phẩm
         productService.saveProduct(product);
         return "redirect:/admin/products";
     }
@@ -81,7 +80,6 @@ public class ProductController {
         Product product = productService.getProductById(id);
         if (product != null) model.addAttribute("product", product);
         model.addAttribute("categories", categoryService.getAllCategories());
-        // Đã sửa thành "admin/product-form"
         return "admin/product-form";
     }
 
