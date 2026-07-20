@@ -10,10 +10,12 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
     <style>
-        body { background-color: #fdfbf7; color: #333; }
-        .text-brand { color: #d35400; }
-        .border-brand { border-left: 5px solid #d35400; }
-        .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+        body { background-color: #fdfbf7; color: #333; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .text-brand { color: #CC4B14; }
+        .border-brand { border-left: 5px solid #CC4B14; }
+        .about-img { border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); object-fit: cover; height: 320px; width: 100%; }
+        .card-custom { border: none; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
+        .card-custom:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body>
@@ -33,7 +35,8 @@
 
         <div class="header-right-actions d-flex align-items-center gap-3">
             <a href="/cart" class="cart-link-premium">
-                Giỏ hàng <span class="cart-count">(0)</span>
+                Giỏ hàng <span class="cart-count" id="cart-count"
+                               th:text="'(' + ${cartCount != null ? cartCount : 0} + ')'">(0)</span>
             </a>
 
             <div class="auth-buttons">
@@ -86,54 +89,128 @@
     </nav>
 </header>
 
-<!-- HERO SECTION CỦA TRANG ABOUT -->
-<div class="hero-section">
-    <div class="container">
-        <h1>Về Web Tea & Cake</h1>
-        <p>Build with precision. Bake with love.</p>
-        <a href="/" class="btn-pl">VỀ TRANG CHỦ</a>
+<div class="hero-section" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/images/About_us_banner1.avif') center/cover no-repeat;">
+    <div class="container text-center text-white py-5">
+        <h1 class="display-4 fw-bold">Câu Chuyện Tea & Cake</h1>
+        <p class="lead">Đậm đà vị trà - Thơm ngon vị bánh trong từng khoảnh khắc.</p>
+        <a href="/" class="btn btn-lg text-white mt-3" style="background-color: #CC4B14; border: none;">VỀ TRANG CHỦ</a>
     </div>
 </div>
 
-<!-- NỘI DUNG CHÍNH -->
 <div class="container py-5">
-    <section class="mb-5">
-        <h2 class="h3 border-brand ps-3 mb-3">Nơi Công Nghệ Gặp Gỡ Hương Vị</h2>
-        <p>Chào mừng bạn đến với <strong class="text-brand">Web Tea & Cake</strong> – nơi chúng tôi tin rằng mỗi dòng code cũng giống như một chiếc bánh ngon: cần sự tỉ mỉ, nguyên liệu chất lượng và tâm huyết của người tạo ra nó.</p>
-    </section>
 
-    <section class="mb-5">
-        <h2 class="h3 border-brand ps-3 mb-3">Câu chuyện của chúng tôi</h2>
-        <p>Web Tea & Cake ra đời từ sự giao thoa giữa hai niềm đam mê lớn: <strong>Phát triển & Kiểm thử Web chuyên nghiệp</strong> và <strong>Nghệ thuật làm bánh thủ công</strong>. Chúng tôi mang đến giải pháp công nghệ tối ưu và những trải nghiệm vị giác tinh tế cho cuộc sống của bạn.</p>
-    </section>
+    <!-- Phần 1: Câu chuyện Trà (Ảnh bên trái, Chữ bên phải) -->
+    <div class="row align-items-center mb-5 py-4">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <img src="/images/About_us_coffee_banner1.avif" alt="Hành trình thương hiệu" class="about-img">
+        </div>
+        <div class="col-md-6 ps-md-5">
+            <h2 class="h3 border-brand ps-3 mb-3 fw-bold text-dark">Hành Trình Đánh Thức Vị Giác</h2>
+            <p class="text-muted" style="line-height: 1.8;">
+                Chào mừng bạn đến với <strong class="text-brand">Tea & Cake</strong>. Chúng tôi bắt đầu hành trình của mình với một niềm tin giản dị: những lá trà được chăm chút kỹ lưỡng từ vùng cao nguyên và những chiếc bánh nướng mới ra lò mỗi ngày có sức mạnh kết nối cảm xúc con người một cách tự nhiên nhất.
+            </p>
+            <p class="text-muted" style="line-height: 1.8;">
+                Không đơn thuần là một thức uống, mỗi sản phẩm tại đây là sự kết tinh của nghệ thuật, tâm huyết và sự tỉ mỉ trong từng công đoạn pha chế.
+            </p>
+        </div>
+    </div>
 
-    <section class="mb-5">
-        <h2 class="h3 border-brand ps-3 mb-4">Triết lý của chúng tôi</h2>
+    <!-- ================= BỔ SUNG MỚI ================= -->
+    <!-- Phần 1.5: Nghệ Thuật Làm Bánh (Chữ bên trái, Ảnh bên phải) -->
+    <div class="row align-items-center mb-5 py-4">
+        <!-- Sử dụng order-md-2 để đẩy ảnh sang phải trên giao diện máy tính -->
+        <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+            <img src="/images/About_us_cake_banner1.avif" alt="Nghệ thuật làm bánh" class="about-img">
+        </div>
+        <!-- Sử dụng order-md-1 để đẩy chữ sang trái trên giao diện máy tính -->
+        <div class="col-md-6 order-md-1 pe-md-5">
+            <h2 class="h3 border-brand ps-3 mb-3 fw-bold text-dark">Nghệ Thuật Nướng Bánh</h2>
+            <p class="text-muted" style="line-height: 1.8;">
+                Để đồng hành cùng những ly trà thanh tao, những thợ bánh của chúng tôi mỗi ngày đều cần mẫn nhào bột, căn chỉnh nhiệt độ lò nướng để cho ra đời những mẻ bánh hoàn hảo nhất.
+            </p>
+            <p class="text-muted" style="line-height: 1.8;">
+                Chúng tôi tự hào sử dụng 100% nguyên liệu tự nhiên, không chất bảo quản. Vị ngọt thanh của bánh hòa quyện cùng vị chát nhẹ của trà sẽ tạo nên một bản hòa tấu hương vị khó quên.
+            </p>
+        </div>
+    </div>
+    <!-- ============================================== -->
+
+    <!-- Phần 2: Giá trị cốt lõi -->
+    <div class="my-5 py-3">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">Giá Trị Cốt Lõi</h2>
+            <div style="width: 50px; height: 3px; background-color: #CC4B14; margin: 10px auto 0 auto;"></div>
+            <p class="text-muted mt-2">Ba tiêu chí hàng đầu định hình nên chất lượng của Tea & Cake</p>
+        </div>
+
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 p-4">
-                    <h3>Sự Tinh Tế</h3>
-                    <p>Khắt khe với chất lượng để đảm bảo sản phẩm hoàn hảo nhất.</p>
+                <div class="card-custom h-100 p-4 text-center">
+                    <div class="mb-3 text-brand fs-1"><i class="fa-solid fa-seedling"></i></div>
+                    <h3 class="h5 fw-bold mb-3">Nguyên Liệu Tươi Sạch</h3>
+                    <p class="text-muted small">Lá trà tuyển chọn và nguyên liệu làm bánh luôn đảm bảo nguồn gốc rõ ràng, đạt chuẩn an toàn vệ sinh thực phẩm.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 p-4">
-                    <h3>Sự Sáng Tạo</h3>
-                    <p>Mọi dự án và mọi chiếc bánh đều được thiết kế riêng theo cá tính của bạn.</p>
+                <div class="card-custom h-100 p-4 text-center">
+                    <div class="mb-3 text-brand fs-1"><i class="fa-solid fa-heart-pulse"></i></div>
+                    <h3 class="h5 fw-bold mb-3">Tâm Huết Thợ Làm</h3>
+                    <p class="text-muted small">Mỗi công thức đều được nghiên cứu kỹ lưỡng, đúc kết từ sự tận tâm để đem lại hương vị trọn vẹn nhất cho thực khách.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card h-100 p-4">
-                    <h3>Sự Kết Nối</h3>
-                    <p>Công nghệ kết nối toàn cầu, còn bánh ngọt kết nối những khoảnh khắc đời thường.</p>
+                <div class="card-custom h-100 p-4 text-center">
+                    <div class="mb-3 text-brand fs-1"><i class="fa-solid fa-mug-hot"></i></div>
+                    <h3 class="h5 fw-bold mb-3">Không Gian Thư Thái</h3>
+                    <p class="text-muted small">Không gian trải nghiệm ấm cúng, thiết kế tối giản, là nơi lý tưởng để bạn tận hưởng những phút giây thư giãn.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </div>
 
-<footer class="text-center pt-4 border-top mt-5 pb-4">
-    <p>&copy; 2026 TEA & CAKE - Hệ Thống Trà & Bánh Tối Giản</p>
+<footer class="footer-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <h5>ĐỊA CHỈ</h5>
+                <p style="font-size: 0.9rem; line-height: 1.6;">
+                    <strong>Trụ sở chính:</strong> Công ty Quân & Thạch <br>
+                    <strong>Địa chỉ:</strong> Số 17 Lê Duẩn, Bến Nghé, Quận 1, TP.HCM <br>
+                    <strong>Hotline:</strong> 0993365781 <br>
+                    <strong>Email:</strong> sales@teacake.com
+                </p>
+            </div>
+            <div class="col-md-2 mb-3">
+                <h5>CÔNG TY</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="#">Tin khuyến mãi</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3">
+                <h5>HỖ TRỢ</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Câu hỏi thường gặp (FAQ)</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Chính sách đặt hàng</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-3 text-md-end">
+                <img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png" alt="Bộ Công Thương" style="width: 150px;">
+            </div>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.2);">
+        <div class="d-flex justify-content-between align-items-center">
+            <p style="margin: 0; font-size: 0.85rem;">&copy; 2026 TEA & CAKE - Hệ Thống Trà & Bánh Tối Giản</p>
+            <div class="social-icons">
+                <i class="fa-brands fa-instagram mx-2"></i>
+                <i class="fa-brands fa-facebook mx-2"></i>
+                <i class="fa-brands fa-youtube mx-2"></i>
+            </div>
+        </div>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

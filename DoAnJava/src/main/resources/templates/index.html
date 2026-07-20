@@ -19,7 +19,6 @@
             })
             .catch(error => {
               console.error('Lỗi:', error);
-
             });
   }
 </script>
@@ -131,24 +130,31 @@
 
   <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
     <div class="col" th:each="product : ${products}">
-      <div class="product-card">
+      <div class="product-card h-100 d-flex flex-column justify-content-between">
         <div>
           <img th:src="${product.imageUrl}" th:alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;">
           <div class="product-category" th:text="${product.category != null ? product.category.name : 'Chưa có loại'}">Thể loại</div>
           <div class="product-name" th:text="${product.name}">Tên sản phẩm</div>
         </div>
-        <!-- mua sản phẩm -->
-        <div>
-          <div class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
 
-          <!-- Bọc nút vào form để gửi yêu cầu đến server -->
-          <button type="button"
-                  class="btn-buy"
-                  th:data-id="${product.id}"
-                  onclick="addToCart(this.getAttribute('data-id'))"
-                  style="border: none; width: 100%; cursor: pointer;">
-            Chọn mua
-          </button>
+        <div class="mt-2">
+          <div class="product-price mb-2" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</div>
+
+          <div class="d-flex gap-2">
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm flex-fill"
+                    th:data-id="${product.id}"
+                    onclick="addToCart(this.getAttribute('data-id'))"
+                    style="font-size: 0.85rem;">
+              Thêm vào giỏ
+            </button>
+
+            <a th:href="@{/checkout-now(productId=${product.id})}"
+               class="btn btn-sm flex-fill text-white fw-bold d-flex align-items-center justify-content-center"
+               style="background-color: #CC4B14; font-size: 0.85rem;">
+              Mua ngay
+            </a>
+          </div>
         </div>
       </div>
     </div>

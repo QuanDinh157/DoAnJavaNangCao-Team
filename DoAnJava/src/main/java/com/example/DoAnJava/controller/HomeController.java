@@ -1,20 +1,15 @@
 package com.example.DoAnJava.controller;
 
-import com.example.DoAnJava.entity.CartItem;
 import com.example.DoAnJava.entity.Product;
 import com.example.DoAnJava.repository.BannerRepository;
+import com.example.DoAnJava.service.CartService;
 import com.example.DoAnJava.service.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -22,10 +17,12 @@ public class HomeController {
 
     private final ProductService productService;
     private final BannerRepository bannerRepository;
+    private final CartService cartService; // Đã thêm anh quản lý giỏ hàng
 
-    public HomeController(ProductService productService, BannerRepository bannerRepository) {
+    public HomeController(ProductService productService, BannerRepository bannerRepository, CartService cartService) {
         this.productService = productService;
         this.bannerRepository = bannerRepository;
+        this.cartService = cartService;
     }
 
     @GetMapping("/")
@@ -39,7 +36,7 @@ public class HomeController {
         model.addAttribute("hotProducts", hotProducts);
         model.addAttribute("products", allProducts);
         model.addAttribute("activePage", "all");
-        model.addAttribute("cartCount", getCartCount(session));
+        model.addAttribute("cartCount", cartService.getCartCount(session));
 
         return "index";
     }
@@ -51,7 +48,7 @@ public class HomeController {
                 .collect(Collectors.toList());
         model.addAttribute("products", drinks);
         model.addAttribute("activePage", "thuc-uong");
-        model.addAttribute("cartCount", getCartCount(session));
+        model.addAttribute("cartCount", cartService.getCartCount(session));
         return "index";
     }
 
@@ -62,84 +59,47 @@ public class HomeController {
                 .collect(Collectors.toList());
         model.addAttribute("products", cakes);
         model.addAttribute("activePage", "banh-ngot");
-        model.addAttribute("cartCount", getCartCount(session));
+        model.addAttribute("cartCount", cartService.getCartCount(session));
         return "index";
     }
+
     @GetMapping("/ve-chung-toi")
     public String veChungToi(Model model) {
         return "about_us";
     }
 
-    // Hàm thêm vào giỏ
+    // ==========================================
+    // CÁC ENDPOINT QUẢN LÝ GIỎ HÀNG (ĐÃ TỐI ƯU)
+    // ==========================================
+
+    // Thêm vào giỏ hàng bằng AJAX (Không load lại trang)
     @PostMapping("/cart/add/{id}")
-    @ResponseBody // Dòng này cực kỳ quan trọng để không load lại trang
+    @ResponseBody
     public int addToCart(@PathVariable String id, HttpSession session) {
-        Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-        if (cart == null) cart = new HashMap<>();
-
-        if (cart.containsKey(id)) {
-            CartItem item = cart.get(id);
-            item.setQuantity(item.getQuantity() + 1);
-        } else {
-            Product product = productService.getProductById(id);
-            if (product != null) {
-                // Lưu ý: Đảm bảo CartItem của bạn có setter cho quantity hoặc khởi tạo đúng
-                cart.put(id, new CartItem(product.getId(), product.getName(), product.getPrice(), product.getImageUrl()));
-            }
-        }
-        session.setAttribute("cart", cart);
-        return getCartCount(session);
+        cartService.addToCart(id, session);
+        return cartService.getCartCount(session); // Trả về số lượng mới cho thẻ <script> xử lý
     }
 
-    private int getCartCount(HttpSession session) {
-        Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-        if (cart == null) return 0;
-        int totalCount = 0;
-        for (CartItem item : cart.values()) {
-            totalCount += item.getQuantity();
-        }
-        return totalCount;
-    }
-
+    // Xem giỏ hàng
     @GetMapping("/cart")
     public String viewCart(HttpSession session, Model model) {
-        Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-        model.addAttribute("cartItems", cart != null ? cart : new HashMap<>());
-        model.addAttribute("cartCount", getCartCount(session));
-
-        // Tính tổng tiền
-        double total = 0;
-        if (cart != null) {
-            for (CartItem item : cart.values()) {
-                total += item.getPrice() * item.getQuantity();
-            }
-        }
-        model.addAttribute("total", total); // Gửi biến total sang HTML
+        model.addAttribute("cartItems", cartService.getCart(session));
+        model.addAttribute("cartCount", cartService.getCartCount(session));
+        model.addAttribute("total", cartService.getTotalPrice(session));
         return "cart";
     }
 
+    // Xóa sản phẩm
     @PostMapping("/cart/remove/{id}")
     public String removeItem(@PathVariable String id, HttpSession session) {
-        Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-        if (cart != null) {
-            cart.remove(id);
-            session.setAttribute("cart", cart);
-        }
-        return "redirect:/cart";
-    }
-    @PostMapping("/cart/update/{id}/{action}")
-    public String updateQuantity(@PathVariable String id, @PathVariable String action, HttpSession session) {
-        Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-        if (cart != null && cart.containsKey(id)) {
-            CartItem item = cart.get(id);
-            if ("increase".equals(action)) {
-                item.setQuantity(item.getQuantity() + 1);
-            } else if ("decrease".equals(action) && item.getQuantity() > 1) {
-                item.setQuantity(item.getQuantity() - 1);
-            }
-        }
-        session.setAttribute("cart", cart);
+        cartService.removeItem(id, session);
         return "redirect:/cart";
     }
 
+    // Cập nhật số lượng (+ / -)
+    @PostMapping("/cart/update/{id}/{action}")
+    public String updateQuantity(@PathVariable String id, @PathVariable String action, HttpSession session) {
+        cartService.updateQuantity(id, action, session);
+        return "redirect:/cart";
+    }
 }
