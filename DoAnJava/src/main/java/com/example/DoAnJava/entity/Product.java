@@ -23,7 +23,7 @@ public class Product {
 
     private String imageUrl;
 
-    private Boolean isHot = false;
+    private Boolean hot = false;
 
     private Integer viewCount = 0;
 

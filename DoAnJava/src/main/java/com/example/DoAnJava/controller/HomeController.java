@@ -17,7 +17,7 @@ public class HomeController {
 
     private final ProductService productService;
     private final BannerRepository bannerRepository;
-    private final CartService cartService; // Đã thêm anh quản lý giỏ hàng
+    private final CartService cartService;
 
     public HomeController(ProductService productService, BannerRepository bannerRepository, CartService cartService) {
         this.productService = productService;
@@ -28,13 +28,18 @@ public class HomeController {
     @GetMapping("/")
     public String index(Model model, HttpSession session) {
         List<Product> allProducts = productService.getAllProducts();
+
+        // Lọc ra các sản phẩm thực sự là HOT (hot = true)
         List<Product> hotProducts = allProducts.stream()
-                .filter(p -> p.getIsHot() != null && p.getIsHot())
+                .filter(p -> p.getHot() != null && p.getHot())
                 .collect(Collectors.toList());
 
         model.addAttribute("banners", bannerRepository.findAll());
         model.addAttribute("hotProducts", hotProducts);
-        model.addAttribute("products", allProducts);
+
+        // Gán danh sách hot vào biến "products" để hiển thị đúng mục Sản phẩm nổi bật ở index.html
+        model.addAttribute("products", hotProducts);
+
         model.addAttribute("activePage", "all");
         model.addAttribute("cartCount", cartService.getCartCount(session));
 
@@ -69,18 +74,16 @@ public class HomeController {
     }
 
     // ==========================================
-    // CÁC ENDPOINT QUẢN LÝ GIỎ HÀNG (ĐÃ TỐI ƯU)
+    // CÁC ENDPOINT QUẢN LÝ GIỎ HÀNG
     // ==========================================
 
-    // Thêm vào giỏ hàng bằng AJAX (Không load lại trang)
     @PostMapping("/cart/add/{id}")
     @ResponseBody
     public int addToCart(@PathVariable String id, HttpSession session) {
         cartService.addToCart(id, session);
-        return cartService.getCartCount(session); // Trả về số lượng mới cho thẻ <script> xử lý
+        return cartService.getCartCount(session);
     }
 
-    // Xem giỏ hàng
     @GetMapping("/cart")
     public String viewCart(HttpSession session, Model model) {
         model.addAttribute("cartItems", cartService.getCart(session));
@@ -89,14 +92,12 @@ public class HomeController {
         return "cart";
     }
 
-    // Xóa sản phẩm
     @PostMapping("/cart/remove/{id}")
     public String removeItem(@PathVariable String id, HttpSession session) {
         cartService.removeItem(id, session);
         return "redirect:/cart";
     }
 
-    // Cập nhật số lượng (+ / -)
     @PostMapping("/cart/update/{id}/{action}")
     public String updateQuantity(@PathVariable String id, @PathVariable String action, HttpSession session) {
         cartService.updateQuantity(id, action, session);

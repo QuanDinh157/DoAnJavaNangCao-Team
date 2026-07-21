@@ -32,6 +32,6 @@ public class ProductService {
     }
 
     public List<Product> getHotProducts() {
-        return productRepository.findByIsHotTrue();
+        return productRepository.findByHotTrue();
     }
 }

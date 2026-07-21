@@ -30,9 +30,17 @@ public class ProductController {
         return "admin/product-list";
     }
 
-    @GetMapping("/add")
-    public String showAddForm(Model model) {
+    @GetMapping("/create")
+    public String showCreateForm(Model model) {
         model.addAttribute("product", new Product());
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "admin/product-form";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable String id, Model model) {
+        Product product = productService.getProductById(id);
+        model.addAttribute("product", product);
         model.addAttribute("categories", categoryService.getAllCategories());
         return "admin/product-form";
     }
@@ -40,47 +48,46 @@ public class ProductController {
     @PostMapping("/save")
     public String saveProduct(@ModelAttribute("product") Product product,
                               @RequestParam(value = "categoryId", required = false) String categoryId,
-                              @RequestParam("imageFile") MultipartFile imageFile) {
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                              @RequestParam(value = "hotCheckbox", required = false) String hotCheckbox) {
 
-        // 1. Xử lý ID
+        // XỬ LÝ LOGIC CHECKBOX: Nếu biến hotCheckbox null (không chọn) -> false. Ngược lại -> true
+        boolean isHot = "true".equals(hotCheckbox);
+        product.setHot(isHot);
+
+        // Xử lý tạo mới (ID rỗng)
         if (product.getId() != null && product.getId().trim().isEmpty()) {
             product.setId(null);
         }
 
-        // 2. Logic giữ ảnh cũ: Nếu là Edit (đã có ID) thì lấy lại URL cũ từ DB
+        // Bảo toàn dữ liệu cũ khi Edit
         if (product.getId() != null) {
             Product existingProduct = productService.getProductById(product.getId());
             if (existingProduct != null) {
                 product.setImageUrl(existingProduct.getImageUrl());
+                product.setViewCount(existingProduct.getViewCount());
+                product.setCreatedAt(existingProduct.getCreatedAt());
             }
         }
 
-        // 3. Xử lý Category
+        // Set Category
         if (categoryId != null && !categoryId.isEmpty()) {
             product.setCategory(categoryService.getCategoryById(categoryId));
         }
 
-        // 4. Xử lý Ảnh với Cloudinary (Chỉ ghi đè nếu có chọn file mới)
+        // Upload ảnh lên Cloudinary
         try {
             if (imageFile != null && !imageFile.isEmpty()) {
                 String imageUrl = cloudinaryService.uploadImage(imageFile);
                 product.setImageUrl(imageUrl);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Lỗi upload ảnh: " + e.getMessage());
         }
 
-        // 5. Lưu sản phẩm
+        // Lưu xuống MongoDB
         productService.saveProduct(product);
         return "redirect:/admin/products";
-    }
-
-    @GetMapping("/edit/{id}")
-    public String showEditProductForm(@PathVariable String id, Model model) {
-        Product product = productService.getProductById(id);
-        if (product != null) model.addAttribute("product", product);
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "admin/product-form";
     }
 
     @GetMapping("/delete/{id}")
